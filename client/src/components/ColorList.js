@@ -32,24 +32,14 @@ const ColorList = ({ colors, updateColors }) => {
 
 
   const saveNew = e => {
-    newColor.id = Date.now();
-
     e.preventDefault();
     api()
-    .put(`/api/colors/${newColor.id}`, newColor)
+    .post(`/api/colors/`, newColor)
     .then(res => {
-      console.log("ADD_NEW_Response", res);
-      
-      updateColors([...colors, newColor])
+      console.log("ADD_NEW_Response", res.data);
+      updateColors(res.data)
     })
-
-    setEditing(false)
   };
-
-
-
-
-
 
 
 
