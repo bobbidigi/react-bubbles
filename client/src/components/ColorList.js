@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from "react";
+import React, { useState } from "react";
 import api from '../utils/api'
 
 const initialColor = {
@@ -13,24 +13,6 @@ const ColorList = ({ colors, updateColors }) => {
   const [newColor, setNewColor] = useState(initialColor);
 
 
-  useEffect(()=>{
-    api()
-    .get('/api/colors')
-    .then(res => {
-      console.log(res.data)
-      updateColors(res.data)
-    })
-  },[editing])
-
-
-
-  const editColor = color => {
-    setEditing(true);
-    setColorToEdit(color);
-    // console.log("editColor",color)
-  };
-
-
   const saveNew = e => {
     e.preventDefault();
     api()
@@ -41,23 +23,27 @@ const ColorList = ({ colors, updateColors }) => {
     })
   };
 
+  const editColor = color => {
+    setEditing(true);
+    setColorToEdit(color);
+    // console.log("editColor",color)
+  };
 
 
   const saveEdit = e => {
     e.preventDefault();
-    // Make a put request to save your updated color
-    // think about where will you get the id from...
-    // where is is saved right now?
     api()
-    .put(`/api/colors/${colorToEdit.id}`, colorToEdit)
-    .then(res => {
-      console.log("saveEditResponse", res);
-      console.log(colors)
-      // updateColors([colorToEdit])
-    })
-
-    setEditing(false)
-    console.log("editing", editing)
+      .put(`/api/colors/${colorToEdit.id}`, colorToEdit)
+      .then(res => {
+        const newColors = colors.map(color => {
+          if (color.id === colorToEdit.id) {
+            return res.data;
+          }
+          return color;
+        });
+        updateColors(newColors);
+      })
+    setEditing(false);
   };
 
   const deleteColor = color => {
@@ -132,7 +118,6 @@ const ColorList = ({ colors, updateColors }) => {
 
 
       {/* //add new */}
-
 
       {<form onSubmit={saveNew}>
           <legend>new color</legend>
