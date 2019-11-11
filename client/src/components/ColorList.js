@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useState, useEffect} from "react";
+import api from '../utils/api'
 
 const initialColor = {
   color: "",
@@ -7,25 +7,83 @@ const initialColor = {
 };
 
 const ColorList = ({ colors, updateColors }) => {
-  console.log(colors);
+  // console.log('updateColors',updateColors);
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
+  const [newColor, setNewColor] = useState(initialColor);
+
+
+  useEffect(()=>{
+    api()
+    .get('/api/colors')
+    .then(res => {
+      console.log(res.data)
+      updateColors(res.data)
+    })
+  },[editing])
+
+
 
   const editColor = color => {
     setEditing(true);
     setColorToEdit(color);
+    // console.log("editColor",color)
   };
+
+
+  const saveNew = e => {
+    newColor.id = Date.now();
+
+    e.preventDefault();
+    api()
+    .put(`/api/colors/${newColor.id}`, newColor)
+    .then(res => {
+      console.log("ADD_NEW_Response", res);
+      
+      updateColors([...colors, newColor])
+    })
+
+    setEditing(false)
+  };
+
+
+
+
+
+
+
 
   const saveEdit = e => {
     e.preventDefault();
     // Make a put request to save your updated color
     // think about where will you get the id from...
     // where is is saved right now?
+    api()
+    .put(`/api/colors/${colorToEdit.id}`, colorToEdit)
+    .then(res => {
+      console.log("saveEditResponse", res);
+      console.log(colors)
+      // updateColors([colorToEdit])
+    })
+
+    setEditing(false)
+    console.log("editing", editing)
   };
 
   const deleteColor = color => {
     // make a delete request to delete this color
+    if(window.confirm("DELETE")){
+      api()
+      .delete(`/api/colors/${color.id}`)
+      .then(res => {
+        console.log("deleteres", res)
+        const newList = colors.filter(clr => clr.id !== color.id)
+        console.log("newList", newList)
+        updateColors(newList)
+      })
+    }
   };
+
 
   return (
     <div className="colors-wrap">
@@ -80,8 +138,38 @@ const ColorList = ({ colors, updateColors }) => {
           </div>
         </form>
       )}
-      <div className="spacer" />
-      {/* stretch - build another form here to add a color */}
+      {/* <div className="spacer" /> */}
+
+
+      {/* //add new */}
+
+
+      {<form onSubmit={saveNew}>
+          <legend>new color</legend>
+          <label>
+            color name:
+            <input
+              onChange={e =>
+                setNewColor({ ...newColor, color: e.target.value })
+              }
+              value={newColor.color}
+            />
+          </label>
+          <label>
+            hex code:
+            <input
+              onChange={e =>
+                setNewColor({...newColor, 
+                  code: { hex: [e.target.value] }})
+              }
+              value={newColor.code.hex}
+            />
+          </label>
+          <div className="button-row">
+            <button type="submit">save</button>
+            <button onClick={() => setEditing(false)}>cancel</button>
+          </div>
+        </form>}
     </div>
   );
 };
