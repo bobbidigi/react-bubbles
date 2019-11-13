@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from "react";
+import React, { useState } from "react";
 import api from '../utils/api'
 
 const initialColor = {
@@ -13,16 +13,16 @@ const ColorList = ({ colors, updateColors }) => {
   const [newColor, setNewColor] = useState(initialColor);
 
 
-  useEffect(()=>{
+
+  const saveNew = e => {
+    e.preventDefault();
     api()
-    .get('/api/colors')
+    .post(`/api/colors/`, newColor)
     .then(res => {
-      console.log(res.data)
+      console.log("ADD_NEW_Response", res.data);
       updateColors(res.data)
     })
-  },[editing])
-
-
+  };
 
   const editColor = color => {
     setEditing(true);
@@ -31,43 +31,20 @@ const ColorList = ({ colors, updateColors }) => {
   };
 
 
-  const saveNew = e => {
-    newColor.id = Date.now();
-
-    e.preventDefault();
-    api()
-    .put(`/api/colors/${newColor.id}`, newColor)
-    .then(res => {
-      console.log("ADD_NEW_Response", res);
-      
-      updateColors([...colors, newColor])
-    })
-
-    setEditing(false)
-  };
-
-
-
-
-
-
-
-
   const saveEdit = e => {
     e.preventDefault();
-    // Make a put request to save your updated color
-    // think about where will you get the id from...
-    // where is is saved right now?
     api()
-    .put(`/api/colors/${colorToEdit.id}`, colorToEdit)
-    .then(res => {
-      console.log("saveEditResponse", res);
-      console.log(colors)
-      // updateColors([colorToEdit])
-    })
-
-    setEditing(false)
-    console.log("editing", editing)
+      .put(`/api/colors/${colorToEdit.id}`, colorToEdit)
+      .then(res => {
+        const newColors = colors.map(color => {
+          if (color.id === colorToEdit.id) {
+            return res.data;
+          }
+          return color;
+        });
+        updateColors(newColors);
+      })
+    setEditing(false);
   };
 
   const deleteColor = color => {
@@ -142,7 +119,6 @@ const ColorList = ({ colors, updateColors }) => {
 
 
       {/* //add new */}
-
 
       {<form onSubmit={saveNew}>
           <legend>new color</legend>
