@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Route } from "react-router-dom";
-import ProtectedRoute from './components/ProtectedRoute'
+import ProtectedRoute from './utils/ProtectedRoute'
 import Login from "./components/Login";
 import "./styles.scss";
 import BubblesPage from './components/BubblePage'

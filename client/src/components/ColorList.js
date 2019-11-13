@@ -13,6 +13,7 @@ const ColorList = ({ colors, updateColors }) => {
   const [newColor, setNewColor] = useState(initialColor);
 
 
+
   const saveNew = e => {
     e.preventDefault();
     api()
